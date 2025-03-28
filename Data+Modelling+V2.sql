@@ -1687,3 +1687,65 @@ VALUES
 
 SELECT COUNT(*) FROM ORDER_PRODUCT_MAPPING;
 
+-- Number of Transactions by Men
+-- #1. What query will you write to find the number of transactions involving male customers?
+SELECT COUNT(order_id)
+FROM sales_fact s
+INNER JOIN customer_info c
+ON s.customer_id = c.customer_id
+WHERE gender = 'male';
+
+-- #2. Write the query to find the number of customers who placed an order from more than one store.
+SELECT
+  COUNT(customer_id)
+FROM
+  (SELECT customer_id, COUNT(DISTINCT store_id) AS store_count
+  FROM sales_fact
+  GROUP BY customer_id
+  HAVING COUNT(DISTINCT store_id) > 1) AS a;
+  
+  -- #3. Write the query to find the city with the highest number of orders, along with the number of orders.
+  SELECT
+  city, order_count
+FROM
+  (SELECT
+     city, COUNT(DISTINCT order_id) AS order_count
+   FROM
+     sales_fact AS fact
+   INNER JOIN branch_details AS branch
+   ON fact.store_id = branch.store_id
+   GROUP BY city
+   ORDER BY COUNT(DISTINCT order_id) DESC) AS a
+LIMIT 1;
+
+-- #4. Write the query to find the area that recorded the highest sales in terms of sales amount, along with its sales amount.
+SELECT
+  area, sales
+FROM
+  (SELECT
+    area, SUM(sale_price * quantity_ordered) AS sales
+    FROM
+    sales_fact AS fact
+    INNER JOIN branch_details AS branch
+    ON fact.store_id = branch.store_id
+    INNER JOIN order_product_mapping AS ord_prod
+    ON fact.order_id = ord_prod.order_id
+    INNER JOIN product_info AS prod
+    ON ord_prod.product_id = prod.product_id
+    GROUP BY area
+    ORDER BY SUM(sale_price * quantity_ordered) DESC) AS a
+LIMIT 1;
+
+-- #5. Write the query to find the state with the highest number of customers.
+SELECT
+  state, cust_count
+FROM
+  (SELECT
+    state, COUNT(DISTINCT customer_id) AS cust_count
+    FROM
+    sales_fact AS fact
+    INNER JOIN branch_details AS branch
+    ON fact.store_id = branch.store_id
+    GROUP BY state
+    ORDER BY COUNT(DISTINCT customer_id) DESC) AS a
+LIMIT 1;
