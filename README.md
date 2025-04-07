@@ -1,4 +1,4 @@
-# ETL-Driven Retail Analytics: SQL Data Pipeline
+# ETL-Driven Customer Segmentation & Retail Analytics : SQL Data Pipeline
 
 ## 🔍 Problem Statement  
 Developed an **ETL pipeline** to extract, transform, and load **retail store data** into a structured database. Leveraged **SQL queries** to analyze **consumer behavior, sales trends, and operational performance**, providing actionable insights for **retail business decision-making**.  
@@ -12,7 +12,7 @@ The dataset includes:
 - **Order Mapping:** Order ID, Product ID, Quantity.  
 
 ## ⚙️ Technology Stack  
-- **ETL Pipeline:** Data extraction, transformation (via Excel), and loading.  
+- **ETL Pipeline:** Data extraction, transformation (via SQL), and loading.  
 - **SQL:** Data transformation, querying, and analysis.  
 - **Excel:** Initial data formatting before importing into SQL.  
 - **Database Management:** Structured storage for retail data.  
