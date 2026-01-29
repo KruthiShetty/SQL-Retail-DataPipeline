@@ -1,51 +1,414 @@
--- Creating a data base
+DROP DATABASE IF EXISTS RETAIL_DB;
 CREATE DATABASE RETAIL_DB;
-
--- Dropping a database
-DROP DATABASE RETAIL_DB;
-
--- USE THE DATABASE
 USE RETAIL_DB;
 
--- CREATING SALES FACT
-CREATE TABLE SALES_FACT
-(
-	ORDER_ID INT PRIMARY KEY,
-    CUSTOMER_ID INT NOT NULL,
-    ORDER_DATE DATE,
-    STORE_ID SMALLINT
+-- ======================================
+-- MASTER TABLES
+-- ======================================
+
+-- CUSTOMER_INFO
+CREATE TABLE CUSTOMER_INFO (
+    customer_id INT PRIMARY KEY,
+    first_name  VARCHAR(20),
+    last_name   VARCHAR(20),
+    gender      VARCHAR(10),
+    email       VARCHAR(50)
 );
 
-DROP TABLE SALES_FACT;
-
--- DIFFERENT APPROACH ON PRIMARY KEY
-CREATE TABLE SALES_FACT
-(
-	ORDER_ID INT,
-    CUSTOMER_ID INT NOT NULL,
-    ORDER_DATE DATE,
-    STORE_ID SMALLINT,
-    PRIMARY KEY (ORDER_ID)
+-- BRANCH_DETAILS
+CREATE TABLE BRANCH_DETAILS (
+    store_id   SMALLINT PRIMARY KEY,
+    store_name VARCHAR(20),
+    area       VARCHAR(20),
+    city       VARCHAR(20),
+    state      VARCHAR(20)
 );
 
--- CREATING ORDER_PRODUCT_MAPPING TABLE
-CREATE TABLE ORDER_PRODUCT_MAPPING
-(
- ORDER_ID INT,
- PRODUCT_ID VARCHAR(10),
- QUANTITY_ORDERED INT
+-- PRODUCT_INFO
+CREATE TABLE PRODUCT_INFO (
+    product_id       VARCHAR(10) PRIMARY KEY,
+    product_name     VARCHAR(100),
+    product_category VARCHAR(50),
+    list_price       DECIMAL(12,2),
+    sale_price       DECIMAL(12,2)
 );
 
+-- ======================================
+-- FACT TABLE
+-- ======================================
+
+-- SALES_FACT
+CREATE TABLE SALES_FACT (
+    order_id    INT PRIMARY KEY,
+    customer_id INT NOT NULL,
+    order_date  DATE,
+    store_id    SMALLINT
+);
+
+-- ======================================
+-- BRIDGE TABLE
+-- ======================================
+
+-- ORDER_PRODUCT_MAPPING
+CREATE TABLE ORDER_PRODUCT_MAPPING (
+    order_id         INT,
+    product_id       VARCHAR(10),
+    quantity_ordered INT,
+    PRIMARY KEY (order_id, product_id)
+);
+
+-- ======================================
+-- FOREIGN KEY CONSTRAINTS
+-- ======================================
+
+-- SALES_FACT → CUSTOMER_INFO
+ALTER TABLE SALES_FACT
+ADD CONSTRAINT fk_sales_customer
+FOREIGN KEY (customer_id)
+REFERENCES CUSTOMER_INFO(customer_id);
+
+-- SALES_FACT → BRANCH_DETAILS
+ALTER TABLE SALES_FACT
+ADD CONSTRAINT fk_sales_store
+FOREIGN KEY (store_id)
+REFERENCES BRANCH_DETAILS(store_id);
+
+-- ORDER_PRODUCT_MAPPING → SALES_FACT
 ALTER TABLE ORDER_PRODUCT_MAPPING
-ADD PRIMARY KEY (ORDER_ID, PRODUCT_ID);
+ADD CONSTRAINT fk_opm_order
+FOREIGN KEY (order_id)
+REFERENCES SALES_FACT(order_id);
 
--- ADDING FOREIGN KEY CONSTRAINT
-
+-- ORDER_PRODUCT_MAPPING → PRODUCT_INFO
 ALTER TABLE ORDER_PRODUCT_MAPPING
-ADD CONSTRAINT fk_order
-FOREIGN KEY (ORDER_ID)
-REFERENCES SALES_FACT(ORDER_ID);
+ADD CONSTRAINT fk_opm_product
+FOREIGN KEY (product_id)
+REFERENCES PRODUCT_INFO(product_id);
 
+-- Loading data into CUSTOMER_INFO-- INSERTING RECORDS INTO CUSTOMER_INFO
+
+INSERT INTO CUSTOMER_INFO
+VALUES
+(100,'Rohini','Krishnan','female','rohinan@gmail.com'),
+(101,'Padmini','Boase','female','padminase@gmail.com'),
+(102,'Naresh','Dhillon','male','nareon@gmail.com'),
+(103,'Arun','Narine','male','arunnaine@gmail.com'),
+(104,'Darpan','Brar','male','darprar@gmail.com'),
+(105,'Devika','Swamy','female','devikmy@gmail.com'),
+(106,'Aayushi','Narang','female','aayushang@gmail.com'),
+(107,'Anand','Sandal','male','anandal@gmail.com'),
+(108,'Yadunandan','Master','male','yadunater@gmail.com'),
+(109,'Julie','Ravel','female','julivel@gmail.com'),
+(110,'Zaad','Joshi','male','zaadjoshi@gmail.com'),
+(111,'Manjari','Rana','female','manjaana@gmail.com'),
+(112,'Nutan','Uppal','female','nutaal@gmail.com'),
+(113,'Bhaagyasree','Varma','female','bhaama@gmail.com'),
+(114,'Jagdish','Soman','male','jagdan@gmail.com'),
+(115,'Aatif','Edwin','male','aatiin@gmail.com'),
+(116,'Owais','Bakshi','male','owaisshi@gmail.com'),
+(117,'Hema','Jhaveri','female','hemajri@gmail.com'),
+(118,'Balaji','Sachar','male','balaar@gmail.com'),
+(119,'Kushal','Sachdev','male','kushdev@gmail.com'),
+(120,'Umar','Hans','male','umarhans@gmail.com'),
+(121,'Mowgli','Matthai','male','mowglai@gmail.com'),
+(122,'Gaurav','Pandit','male','gaurdit@gmail.com'),
+(123,'Yadu','Chaudhuri','male','yaduchuri@gmail.com'),
+(124,'Bagwati','Pai','female','bagwai@gmail.com'),
+(125,'Jack','Bedi','male','jackedi@gmail.com'),
+(126,'Parveen','Ramaswamy','male','parveemy@gmail.com'),
+(127,'Baldev','Dube','male','baldbe@gmail.com'),
+(128,'Himesh','Ramson','male','himeon@gmail.com'),
+(129,'Hema','Purohit','female','hemapit@gmail.com'),
+(130,'Sameera','Tak','female','sametak@gmail.com'),
+(131,'Sara','Sule','female','sarasuule@gmail.com'),
+(132,'Yadu','Balasubramanian','male','yaduban@gmail.com'),
+(133,'Mohan','Koshy','male','mohankhy@gmail.com'),
+(134,'Madhavi','Sidhu','female','madhavhu@gmail.com'),
+(135,'Narayan','Brar','male','narayaar@gmail.com'),
+(136,'Binoya','Mittal','male','binoyal@gmail.com'),
+(137,'Albert','Menon','male','albernon@gmail.com'),
+(138,'Bahadur','Sodhani','male','bahaduni@gmail.com'),
+(139,'Bimla','Cherian','female','bimlacian@gmail.com'),
+(140,'Biren','Parikh','male','birenkh@gmail.com'),
+(141,'Nidhi','Chaudhari','female','nidhicari@gmail.com'),
+(142,'Yadunandan','Choudhry','male','yadunary@gmail.com'),
+(143,'Manpreet','Mallick','male','manpick@gmail.com'),
+(144,'Dinesh','Gour','male','dinesur@gmail.com'),
+(145,'Bhairavi','Hegde','female','bhairagde@gmail.com'),
+(146,'Astha','Madan','female','asthan@gmail.com'),
+(147,'Mahmood','Malpani','male','mahmooani@gmail.com'),
+(148,'Leelawati','Sharma','female','leelawrma@gmail.com'),
+(149,'Narayan','Rao','male','narayaao@gmail.com'),
+(150,'Mustafa','Mital','male','mustafal@gmail.com'),
+(151,'Astha','Merchant','female','asthamant@gmail.com'),
+(152,'Niyati','Dhawan','female','niyatian@gmail.com'),
+(153,'Yadunandan','Dugal','male','yadunal@gmail.com'),
+(154,'Arvind','Krish','male','arvinsh@gmail.com'),
+(155,'Bimla','Parmer','female','bimlamer@gmail.com'),
+(156,'Pamela','Sarkar','female','pamelkar@gmail.com'),
+(157,'Somnath','Mahabir','male','somnatbir@gmail.com'),
+(158,'Raju','De','male','rajuude@gmail.com'),
+(159,'Aabha','Sankar','female','aabhkar@gmail.com'),
+(160,'Radheshyam','Nigam','male','radhegam@gmail.com'),
+(161,'Lakshmi','Varkey','male','laksey@gmail.com'),
+(162,'Vijayent','Kata','male','vijayeata@gmail.com'),
+(163,'Nishita','Kari','female','nishitari@gmail.com'),
+(164,'Moti','Kothari','male','motiari@gmail.com'),
+(165,'Lalita','Hayer','female','laliter@gmail.com'),
+(166,'John','Goyal','male','johnyal@gmail.com'),
+(167,'Nazir','Lad','male','nazirlad@gmail.com'),
+(168,'Himani','Bhatt','female','himantt@gmail.com'),
+(169,'Moti','Wable','male','motiwale@gmail.com'),
+(170,'Nawab,','Wali','male','nawabwali@gmail.com'),
+(171,'Satish','Sethi','male','satihi@gmail.com'),
+(172,'Diya','Vyas','female','diyaas@gmail.com'),
+(173,'Radheshyam','Kanda','male','radhnda@gmail.com'),
+(174,'Aatif','Dar','male','aatidar@gmail.com'),
+(175,'Nandini','Chhabra','female','nandira@gmail.com'),
+(176,'Ajeet','Dial','male','ajeetial@gmail.com'),
+(177,'Dhanush','Chatterjee','male','dhanjee@gmail.com'),
+(178,'Govind','Kata','male','goviata@gmail.com'),
+(179,'Aslam','Upadhyay','male','aslamuyay@gmail.com'),
+(180,'Leelawati','Seshadri','female','leelri@gmail.com'),
+(181,'Jack','Dutta','male','jacktta@gmail.com'),
+(182,'Namita','Bakshi','female','namishi@gmail.com'),
+(183,'Zara','Mehan','female','zaramean@gmail.com'),
+(184,'David','Parsa','male','davirsa@gmail.com'),
+(185,'Aatif','Bose','male','aatifbse@gmail.com'),
+(186,'Arun','Chana','male','arunchna@gmail.com'),
+(187,'Vikrant','Shankar','male','vikrkar@gmail.com'),
+(188,'Munni','Shetty','female','munnisty@gmail.com'),
+(189,'Himesh','Tara','male','himeara@gmail.com'),
+(190,'Shanti','Dhar','female','shanar@gmail.com'),
+(191,'Bijoy','Maraj','male','bijoraj@gmail.com'),
+(192,'Vimala','Kapadia','female','vimaladia@gmail.com'),
+(193,'Akhil','Sathe','male','akhilsthe@gmail.com'),
+(194,'Aayushman','Khan','male','aayuhan@gmail.com'),
+(195,'Obaid','Taneja','male','obaidteja@gmail.com'),
+(196,'Ram','Dash','male','ramdassh@gmail.com'),
+(197,'Ananya','Pillay','female','ananlay@gmail.com'),
+(198,'Mehul','Vora','male','mehura@gmail.com'),
+(199,'Mahmood','Gola','male','mahmola@gmail.com'),
+(200,'Fakaruddin','Tripathi','male','fakarthi@gmail.com');
+
+#----------CALCULATION OF TOTAL ROWS ENTERED TO CROSS CHECK ACCURACY
+select COUNT(*) FROM CUSTOMER_INFO ;
+
+#___________________________________________________________________________________
+
+-- BRANCH_DETAILS
+INSERT INTO BRANCH_DETAILS VALUES
+(1,'Store A','Koramangala','Bengaluru','Karnataka'),
+(2,'Store A','Indiranagar','Bengaluru','Karnataka'),
+(3,'Store A','Jayanagar','Bengaluru','Karnataka'),
+(4,'Store A','Andheri','Mumbai','Maharashtra'),
+(5,'Store A','Bandra','Mumbai','Maharashtra'),
+(6,'Store A','DLF Phase 3','Gurgaon','Haryana'),
+(7,'Store B','Indiranagar','Bengaluru','Karnataka'),
+(8,'Store B','Marathalli','Bengaluru','Karnataka'),
+(9,'Store B','South City','Gurgaon','Haryana'),
+(10,'Store B','Andheri','Mumbai','Maharashtra');
+
+SELECT COUNT(*) FROM BRANCH_DETAILS;
+
+#___________________________________________________________________________________
+
+
+-- Loading data into PRODUCT_INFO-- INSERTING RECORDS INTO PRODUCT_INFO
+
+INSERT INTO PRODUCT_INFO VALUES
+('111a','Gooseberry (Amla)','fresh fruits',130,130),
+('1220','Parachute Advanced Aloe Vera Coconut Hair Oil','hair and body oils',39,39),
+('137b','French Beans (Phaliyaan)','fresh vegetables',16,16),
+('139c','Washington Apple (Seb)','fresh fruits',260,260),
+('13e6','Lux Saffron Glow Soap ','soaps and bodywash',108,108),
+('1432','Nestle A+ Slim Skimmed Milk ','milk',80,80),
+('146a','Cornitos Tikka Masala Nacho Crisps','chips nachos and popcorn',35,35),
+('173c','Parachute Pure Coconut Oil ','hair and body oils',39,39),
+('176f','Britannia Nutri Choice Hi-Fibre Digestive Biscuits','biscuits',159,159),
+('17bf','Tropicana Pineapple Delight Juice (Tetra Pack)','soft drinks-juice and soda',100,100),
+('184e','Tata Iodised Crystal Salt','salt',18,18),
+('1874','Snickers Almond Chocolate','chocolate',25,25),
+('1880','Bajji Green Chilli (Pakora Mirch)','fresh vegetables',69,69),
+('188e','Nilgiris Premium Long Grain Pulao Rice','rice_rice_products',75,75),
+('1963','Nilgiris Premium Methi Seeds','masala and spice',25,25),
+('1a9f','Nilgiris Premium Green Chana','pulses and other grains',78,78),
+('1aac','Nivea Oil Control Face Wash for Men','face wash',175,175),
+('1ade','Nilgiris Premium Groundnuts','pulses and other grains',35,27),
+('1c15','Britannia Treat Crazy Pineapple Cream Biscuits ','biscuits',30,30),
+('1c3d','Baby Corn (Makkai)','fresh vegetables',90,90),
+('1d70','Nilgiris Premium Fine Sooji ','atta and other flours',65,65),
+('1df8','Garnier Skin Naturals Light Complete Fairness Face Wash','face wash',170,170),
+('1e5e','Chinese Cabbage (Patha Gobi)','fresh vegetables',60,60),
+('200b','Fogg Nepoleon Fragrance Body Spray for Men ','deodorants',230,230),
+('2249','Nilgiris Premium Black Masoor Dal','pulses and other grains',43,43),
+('237a','Parle Milano Center Filled Mixed Berries Cookies','biscuits',35,35),
+('2406','Yellow Pumpkin (Kaddoo)','fresh vegetables',44,44),
+('2499','Brooke Bond 3 Roses Tea','tea',50,50),
+('251d','Nilgiris Premium American Green Peas','pulses and other grains',27,27),
+('25bd','Organic India Tulsi Masala Flavoured Tea','tea',230,230),
+('263e','Palmolive Thermal Spa Body Gel','soaps and bodywash',180,180),
+('27c3','Green Pumpkin (Kaddoo)','fresh vegetables',38,38),
+('28d5','Colgate Strong Teeth Toothpaste Combo','toothpaste',184,184),
+('2a73','Nilgiris Premium Cloves','masala and spice',169,150),
+('2bc0','Snickers Chocolate','chocolate',35,35),
+('2e2e','Britannia Nutrichoice Simply Lite Crackers ','biscuits',15,15),
+('2ed1','Nilgiris Delight Toned Milk','milk',20,20),
+('3111','Cherry','fresh fruits',495,495),
+('3128','Paper Boat Jaljeera Juice (Tetra Pack)','soft drinks-juice and soda',30,30),
+('31c8','Nilgiris Premium Small Sago','pulses and other grains',62,62),
+('32f7','Parle-G Glucose Biscuits ','biscuits',20,20),
+('35af','Organic India Tulsi Ginger Tea (Tea Bags)','tea',148,148),
+('3690','Coca-Cola Diet Coke (Can)','soft drinks-juice and soda',45,45),
+('37ab','Yellow Capsicum (Shimla Mirch)','fresh vegetables',250,250),
+('3995','Nilgiris Premium Fried Gram - Split','pulses and other grains',65,65),
+('3a6a','Yellow Zucchini','fresh vegetables',60,60),
+('3a70','Parle Hide & Seek Black Bourbon Choco Crème Sandwich Biscuits','biscuits',30,30),
+('3b82','Purple Brinjal (Baingan)','fresh vegetables',110,110),
+('3d5a','B Natural Cloudy Apple Juice (Tetra Pack)','soft drinks-juice and soda',99,99),
+('3e09','Nilgiris Premium Nylon Sago - Grain','pulses and other grains',24,24),
+('3f4c','Dabur Squeezy Honey - Buy 1 Get 1 Free','honey',280,280),
+('3f89','Muskmelon (Kharbooja)','fresh fruits',45,45),
+('4012','Sunfeast Marie Light Orange Biscuits ','biscuits',15,15),
+('4071','Tata Lite Low Sodium Iodised Salt','salt',35,35),
+('408f','Nilgiris Tea Crackers','biscuits',35,35),
+('4243','Medium Onion (Pyaaz)','fresh vegetables',130,130),
+('430f','Cherry Tomato (Tamatar)','fresh vegetables',44,44),
+('4323','Cornitos Sizzlin Jalapeno Nachos','chips nachos and popcorn',85,82),
+('4431','Britannia Marie Gold Biscuits ','biscuits',10,10),
+('44a8','Nilgiris Premium Chana Dal - Split','pulses and other grains',95,95),
+('4796','Nilgiris Premium Diamond White Sugar','sugar',13,13),
+('486a','Tropicana Slice Mango Juice (Tetra Pack)','soft drinks-juice and soda',65,65),
+('4873','Schweppes Indian Tonic Water (Can)','soft drinks-juice and soda',50,37),
+('488d','Sunfeast Bounce Tangy Orange Cream Biscuits ','biscuits',10,10),
+('4925','Spinach (Palak)','fresh vegetables',15,15),
+('4ace','Tropicana Pomegranate Delight Juice (Tetra Pack)','soft drinks-juice and soda',110,110),
+('4afc','Cowpea Beans (Phaliyaan)','fresh vegetables',60,60),
+('4b18','Dev Snacks Banana Chips','chips nachos and popcorn',85,85),
+('4cc9','Peeled Onion (Pyaaz)','fresh vegetables',20,20),
+('4f27','Nilgiris Premium Navratan Dal Mix','pulses and other grains',68,68),
+('4fe4','Robusta Banana (Kela)','fresh fruits',98,98),
+('50b5','Small Broad Beans','fresh vegetables',50,50),
+('51b5','Garlic (Lahsun)','fresh vegetables',41,41),
+('535c','Nilgiris Premium White Urad Dal','pulses and other grains',27,27),
+('551f','Nilgiris Premium Black Jeera Seeds','masala and spice',33,33),
+('559f','Banana Flower (Kele Ka Phool)','fresh vegetables',20,20),
+('5744','Colgate Herbal Toothpaste','toothpaste',88,88),
+('58a5','Minute Maid Pulpy Mosambi Juice (Bottle)','soft drinks-juice and soda',75,75),
+('595c','Organic India Original Tulsi Tea (Tea Bags)','tea',148,148),
+('5a9d','Nilgiris Premium White Urad Dal - Split','pulses and other grains',116,116),
+('5ce1','Kinnow Orange (Santara)','fresh fruits',53,53),
+('5e70','Palmolive Aroma Absolute Relax Body Gel','soaps and bodywash',180,180),
+('601d','Pringles South African Style Peri Peri Potato Crisps','chips nachos and popcorn',99,99),
+('6601','Yelakki Banana (Kela)','fresh fruits',53,53),
+('66c8','Cadbury Dairy Milk Roast Almond Chocolate','chocolate',40,40),
+('67e8','Nilgiris Premium White Peas','pulses and other grains',51,51),
+('687b','Tropicana Slice Mango Juice (Bottle)','soft drinks-juice and soda',50,50),
+('6953','Raw Mango (Kaccha Aam)','fresh vegetables',40,40),
+('6996','Red Carrot (Gajar)','fresh vegetables',80,80),
+('6b27','B Natural Orange Juice (Tetra Pack)','soft drinks-juice and soda',99,99),
+('6b46','Kashmir Apple (Seb)','fresh fruits',90,90),
+('6c70','Lemongrass','fresh vegetables',35,35),
+('6d03','Aashirvaad Superior MP Atta ','atta and other flours',55,55),
+('6d5d','Cadbury 5 Star 3D Chocolate','chocolate',30,30),
+('6d94','Nilgiris Premium Bay Leaf','masala and spice',10,10),
+('6e9b','Raw Papaya (Kaccha Papita)','fresh vegetables',38,38),
+('71c2','Cauliflower (Phool Gobi)','fresh vegetables',40,40),
+('7308','Senai Yam (Rataloo)','fresh vegetables',35,35),
+('733b','Nilgiris Good to Snack Rusk','biscuits',15,15),
+('740f','Beetroot (Chukandar)','fresh vegetables',40,40),
+('74b8','Nivea Men Dark Spot Reduction Face Wash','face wash',199,199),
+('74dd','Parle Krack Jack Sweet & Salty Crackers','biscuits',10,10),
+('755b','Britannia Good Day Chocochip Cookies ','biscuits',30,30),
+('7628','Indian Seedless Green Grapes (Angoor)','fresh fruits',60,60),
+('7713','Nilgiris Premium Butter Beans','pulses and other grains',74,74),
+('77c1','Long Purple Brinjal (Baingan)','fresh vegetables',35,35),
+('780d','Green Zucchini','fresh vegetables',234,234),
+('78fb','Aashirvaad Select Sharbati Atta','atta and other flours',255,255),
+('7ecd','Leeks','fresh vegetables',18,18),
+('7edd','Nestle Milkybar Moosha Chocolate','chocolate',20,20),
+('7f5b','Dettol Original Hand Wash Refill','hand wash',58,58),
+('80d8','Nilgiris Premium Clove/Laung Powder','masala and spice',60,60),
+('8146','Colgate Vedshakti Toothpaste ','toothpaste',49,49),
+('81ab','Parle Real Elaichi Premium Rusk','biscuits',30,30),
+('827e','English Cucumber (Kheera)','fresh vegetables',25,25),
+('8460','Nilgiris Toned Milk','milk',20,20),
+('8526','Peppy Sumo Pack Cheese Balls','chips nachos and popcorn',50,50),
+('85ca','Britannia Milk Bikis Sandwich Biscuits ','biscuits',40,40),
+('85d3','Tomato (Tamatar)','fresh vegetables',26,26),
+('8605','Ash Gourd (Petha)','fresh vegetables',35,35),
+('863c','Nilgiris Sona Masoori Premium Rice','rice_rice_products',335,335),
+('86ec','Pomegranate (Anaar)','fresh fruits',162,162),
+('8905','Iceberg Lettuce','fresh vegetables',120,120),
+('89c3','Nilgiris Premium Horse Gram','pulses and other grains',18,15),
+('8a43','Britannia Treat Funky Choco Biscuits','biscuits',30,30),
+('8a61','Sensodyne Whitening Toothpaste','toothpaste',115,115),
+('8b29','Doritos Cheese Nachos','chips nachos and popcorn',65,65),
+('8b66','Cornitos Sizzlin Jalapeno Nacho Crisps','chips nachos and popcorn',35,35),
+('8bed','Nilgiris Premium Kolam Rice','rice_rice_products',460,460),
+('8d0b','Himalaya Aloe Vera Moisturizing Face Wash ','face wash',120,120),
+('8dbb','Nilgiris Premium Gram Flour ','atta and other flours',54,45),
+('8fd1','Avocado','fresh fruits',570,570),
+('9055','Pantene Total Damage Care Shampoo ','shampoo',220,220),
+('90b0','Britannia Nutrichoice Essentials Oat Cookies','biscuits',60,60),
+('9253','Britannia Pure Magic Choco Creme Biscuits','biscuits',30,30),
+('92c5','Britannia Treat Burst Choco Cream Fills Cookies','biscuits',15,15),
+('92c6','Thums Up Charged (Can)','soft drinks-juice and soda',35,35),
+('93c8','Britannia Milk Bikis Biscuits','biscuits',25,25),
+('93d8','Nilgiris Premium Black Urad - Split','pulses and other grains',115,115),
+('949a','Green Capsicum (Shimla Mirch)','fresh vegetables',80,80),
+('94c5','Sweet Lime (Mosambi)','fresh fruits',105,105),
+('94e2','Herbs and Seasonings Combo','fresh vegetables',85,85),
+('9695','Sunfeast Glucose Biscuits ','biscuits',10,10),
+('9701','Carrot (Gajar)','fresh vegetables',54,54),
+('98e7','Green Raw Banana (Kaccha Kela)','fresh vegetables',12,12),
+('9b60','Cadbury 5 Star Chocolate','chocolate',20,20),
+('9bff','Banana Stem','fresh vegetables',20,20),
+('9d4a','Mysore Sandal  Soap ','soaps and bodywash',62,62),
+('9d8d','Nilgiris Premium Thick Regular Beaten Rice','rice_rice_products',35,35),
+('1170','Dabur Honey ','honey',37,37),
+('1252','Kurkure Shahi Twistkeen Crisps','chips nachos and popcorn',35,35),
+('140d','Asparagus (Shatavari)','fresh vegetables',375,375),
+('16c9','Himalaya Neem & Turmeric Soap ','soaps and bodywash',45,45),
+('16f5','Britannia Toastea Multigrain Rusk','biscuits',35,35),
+('172f','Cornitos Cheese and Herb Nachos','chips nachos and popcorn',85,85),
+('17e1','Gone Mad Sugar Cheese Crackers ','biscuits',60,60),
+('1982','Nilgiris Premium Hamsa Rice (Medium Grain)','rice_rice_products',44,38),
+('1a62','Garnier Oil Clear Gel Face Wash For Men','face wash',195,195),
+('1b6b','Brooke Bond Red Label Natural Care Tea','tea',130,130),
+('1d42','Strawberry','fresh fruits',95,95),
+('1d51','Fanta (Bottle)','soft drinks-juice and soda',40,40),
+('1f44','Nilgiris Premium Yellow Mustard Seeds','masala and spice',20,20),
+('1f8b','Long Green Brinjal (Baingan)','fresh vegetables',100,100),
+('2116','Parle Premium Real Elaichi Rusk','biscuits',57,47),
+('223a','Parle-G Gold Glucose Biscuits ','biscuits',100,100),
+('2459','Nilgiris Spicy Cracker','biscuits',40,40),
+('28a9','Nilgiris Premium Black Urad Dal','pulses and other grains',58,58),
+('28c6','Nilgiris Premium Dry Ginger','masala and spice',60,60),
+('29ba','Onion (Payaaz)','fresh vegetables',145,145),
+('29ec','Chinese Cabbage (Patta Gobi)','fresh vegetables',35,28),
+('2a00','Bitter Gourd (Karela)','fresh vegetables',46,46),
+('2c1c','Bingo Mad Angles Masala Crisps','chips nachos and popcorn',20,20),
+('2da0','MDH Deggi Mirch Powder','masala and spice',60,60),
+('3577','Nilgiris Premium Bajra - Seeds','pulses and other grains',32,28),
+('395e','Nilgiris Premium Country Sugar','sugar',45,45),
+('39c3','Real Fruit Power Activ 100% Orange Juice (Tetra Pack)','soft drinks-juice and soda',130,130),
+('3a7a','Nilgiris Premium Soya Chunks','pulses and other grains',26,26),
+('3b21','Litchi','fresh fruits',230,166),
+('3f49','Real Fruit Power Litchi Juice (Tetra Pack)','soft drinks-juice and soda',105,105),
+('4362','Biotique Advanced Fairness Face Wash','face wash',100,91),
+('45f8','Britannia Good Day Chunkies Chocolate Chip Cookies','biscuits',50,50),
+('46ab','Thums Up (Can)','soft drinks-juice and soda',35,35),
+('47e4','Parle Monaco Cheeslings Classic Crackers ','biscuits',120,120),
+('4ec8','Nilgiris Premium Bajra Flour ','atta and other flours',35,35),
+('5262','Raspberry','fresh fruits',780,780),
+('52dc','Cabbage (Patta Gobi)','fresh vegetables',30,30),
+('5446','Mogu Mogu Mango Juice (Bottle)','soft drinks-juice and soda',60,60),
+('55d7','Coca-Cola (Bottle)','soft drinks-juice and soda',80,80);
+
+SELECT COUNT(*) AS TOTAL_ROWS FROM PRODUCT_INFO;
+
+#_____________________________________________________________________________________
 
 -- Loading data into sales_fact
 INSERT INTO SALES_FACT
@@ -602,6 +965,8 @@ VALUES
 (1549,150,'2020-09-10',4);
 
 SELECT COUNT(*) FROM SALES_FACT;
+
+#_____________________________________________________________________________________
 
 -- INSERTING RECORDS INTO ORDER_PRODUCT_MAPPING
 
@@ -1688,65 +2053,120 @@ VALUES
 
 SELECT COUNT(*) FROM ORDER_PRODUCT_MAPPING;
 
--- Number of Transactions by Men
--- #1. What query will you write to find the number of transactions involving male customers?
-SELECT COUNT(order_id)
+#_____________________________________________________________________________
+
+/* -------------------------------------------------
+1. Number of Transactions by Gender
+------------------------------------------------- */
+SELECT
+    c.gender,
+    COUNT(s.order_id) AS total_transactions
 FROM sales_fact s
-INNER JOIN customer_info c
-ON s.customer_id = c.customer_id
-WHERE gender = 'male';
+JOIN customer_info c
+    ON s.customer_id = c.customer_id
+WHERE c.gender IN ('Male', 'Female')
+GROUP BY c.gender;
 
--- #2. Write the query to find the number of customers who placed an order from more than one store.
+/* -------------------------------------------------
+2. Number of Customers Who Have Placed Orders
+   from More Than One Store
+------------------------------------------------- */
 SELECT
-  COUNT(customer_id)
-FROM
-  (SELECT customer_id, COUNT(DISTINCT store_id) AS store_count
-  FROM sales_fact
-  GROUP BY customer_id
-  HAVING COUNT(DISTINCT store_id) > 1) AS a;
-  
-  -- #3. Write the query to find the city with the highest number of orders, along with the number of orders.
-  SELECT
-  city, order_count
-FROM
-  (SELECT
-     city, COUNT(DISTINCT order_id) AS order_count
-   FROM
-     sales_fact AS fact
-   INNER JOIN branch_details AS branch
-   ON fact.store_id = branch.store_id
-   GROUP BY city
-   ORDER BY COUNT(DISTINCT order_id) DESC) AS a
+    COUNT(DISTINCT customer_id) AS customer_count
+FROM (
+    SELECT
+        customer_id
+    FROM sales_fact
+    GROUP BY customer_id
+    HAVING COUNT(DISTINCT store_id) > 1
+) AS multi_store_customers;
+
+
+/* -------------------------------------------------
+3. City with the Highest Number of Orders
+------------------------------------------------- */
+SELECT
+    b.city,
+    COUNT(s.order_id) AS total_orders
+FROM sales_fact s
+JOIN branch_details b
+    ON s.store_id = b.store_id
+GROUP BY b.city
+ORDER BY total_orders DESC
 LIMIT 1;
 
--- #4. Write the query to find the area that recorded the highest sales in terms of sales amount, along with its sales amount.
-SELECT
-  area, sales
-FROM
-  (SELECT
-    area, SUM(sale_price * quantity_ordered) AS sales
-    FROM
-    sales_fact AS fact
-    INNER JOIN branch_details AS branch
-    ON fact.store_id = branch.store_id
-    INNER JOIN order_product_mapping AS ord_prod
-    ON fact.order_id = ord_prod.order_id
-    INNER JOIN product_info AS prod
-    ON ord_prod.product_id = prod.product_id
-    GROUP BY area
-    ORDER BY SUM(sale_price * quantity_ordered) DESC) AS a
-LIMIT 1;
 
--- #5. Write the query to find the state with the highest number of customers.
+/* -------------------------------------------------
+4. Area with Highest Sales (Total Sales Value)
+------------------------------------------------- */
 SELECT
-  state, cust_count
-FROM
-  (SELECT
-    state, COUNT(DISTINCT customer_id) AS cust_count
-    FROM
-    sales_fact AS fact
-    INNER JOIN branch_details AS branch
-    ON fact.store_id = branch.store_id
-    GROUP BY state
-    ORDER BY COUNT(DISTINCT customer_id) DESC) AS a
-LIMIT 1;
+    b.city,
+    b.area,
+    SUM(p.sale_price * op.quantity_ordered) AS total_sales
+FROM sales_fact s
+JOIN order_product_mapping op
+    ON s.order_id = op.order_id
+JOIN product_info p
+    ON op.product_id = p.product_id
+JOIN branch_details b
+    ON s.store_id = b.store_id
+GROUP BY b.city, b.area
+ORDER BY total_sales DESC
+LIMIT 5;
+
+
+/* -------------------------------------------------
+5. State with the Highest Number of Customers
+------------------------------------------------- */
+SELECT
+    b.state,
+    COUNT(DISTINCT s.customer_id) AS total_customers
+FROM sales_fact s
+JOIN branch_details b
+    ON s.store_id = b.store_id
+GROUP BY b.state
+ORDER BY total_customers DESC
+LIMIT 5;
+
+
+/* -------------------------------------------------
+6. Customer Loyalty Segmentation
+------------------------------------------------- */
+SELECT
+    customer_id,
+    CASE
+        WHEN COUNT(order_id) > 5 THEN 'High-Value'
+        WHEN COUNT(order_id) BETWEEN 2 AND 5 THEN 'Medium-Value'
+        ELSE 'Low-Value'
+    END AS loyalty_segment
+FROM sales_fact
+GROUP BY customer_id
+ORDER BY loyalty_segment DESC;
+
+
+/* -------------------------------------------------
+7. Top-Selling Products by Quantity
+------------------------------------------------- */
+SELECT
+    p.product_name,
+    SUM(om.quantity_ordered) AS total_units_sold
+FROM order_product_mapping om
+JOIN product_info p
+    ON om.product_id = p.product_id
+GROUP BY p.product_name
+ORDER BY total_units_sold DESC
+LIMIT 10;
+
+
+/* -------------------------------------------------
+8. Top Revenue-Generating Products
+------------------------------------------------- */
+SELECT
+    p.product_name,
+    SUM(om.quantity_ordered * p.sale_price) AS total_revenue
+FROM order_product_mapping om
+JOIN product_info p
+    ON om.product_id = p.product_id
+GROUP BY p.product_name
+ORDER BY total_revenue DESC
+LIMIT 10;
